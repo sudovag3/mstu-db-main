@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
@@ -11,13 +12,17 @@ from docx import Document
 from config.md_start import *
 from config.md_routes import *
 
-
+from dotenv import load_dotenv
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 class Programm:
-    def __init__(self,host,user,password):
+    def __init__(self,host,user,password,port):
         self.host=host
         self.user=user
         self.password=password
+        self.port=port
         
         self.create_update=create_update
         self.create_form=create_form
@@ -295,7 +300,7 @@ class Programm:
         	host=self.host,
         	user=self.user,
         	password=self.password,
-            port=33060
+            port=self.port
     		)
     		rz=1
     	except Error as e:
@@ -317,7 +322,7 @@ class Programm:
         	user=self.user,
         	password=self.password,
         	database=self.db,
-            port=33060
+            port=self.port
     		)
         except Error as e:
             self.mprint(e)
@@ -599,11 +604,12 @@ class Programm:
                 self.canvas.tag_lower(self.tableim[-1])
 
 
-host="localhost"
-user='root'
-password='root'
+host=os.environ.get('DB_HOST')
+user=os.environ.get('DB_USER')
+password=os.environ.get('DB_PASSWORD') or ''
+port=os.environ.get('DB_PORT')
 
-programm=Programm(host,user,password)
+programm=Programm(host,user,password, port)
 programm.create_menu()
 programm.create_scroll()
 programm.route_change('')
