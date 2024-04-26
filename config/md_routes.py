@@ -22,6 +22,12 @@ def create_update(self, form):
     vst3 = -1
     vst4 = -1
     vst5 = -1
+    
+    options1=['None']
+    options2=['None']
+    options3=['None']
+    options4=['None']
+    options5=['None']
 
     if 'Категория' in tb[0]:
         vst1 = tb[0].index('Категория')
@@ -30,6 +36,7 @@ def create_update(self, form):
         dct1 = {}
         for d in data2:
             dct1[str(d[0])] = d[1]
+            options1.append(d[1])
     if 'Оборудование' in tb[0]:
         vst2 = tb[0].index('Оборудование')
         query = 'SELECT * FROM ' + self.tbs[3]
@@ -37,6 +44,7 @@ def create_update(self, form):
         dct2 = {}
         for d in data2:
             dct2[str(d[0])] = d[1]
+            options2.append(d[1])
     if 'Руководитель' in tb[0]:
         vst3 = tb[0].index('Руководитель')
         query = 'SELECT * FROM ' + self.tbs[2]
@@ -44,6 +52,7 @@ def create_update(self, form):
         dct3 = {}
         for d in data2:
             dct3[str(d[0])] = d[2]
+            options3.append(d[2])
     if 'Проект' in tb[0]:
         vst4 = tb[0].index('Проект')
         query = 'SELECT * FROM ' + self.tbs[4]
@@ -51,6 +60,7 @@ def create_update(self, form):
         dct4 = {}
         for d in data2:
             dct4[str(d[0])] = str(d[0])
+            options4.append(str(d[0]))
     if 'Заказчик' in tb[0]:
         vst5 = tb[0].index('Заказчик')
         query = 'SELECT * FROM ' + self.tbs[5]
@@ -58,6 +68,7 @@ def create_update(self, form):
         dct5 = {}
         for d in data2:
             dct5[str(d[0])] = d[1]
+            options5.append(d[1])
     i = 0
     for rw in data:
 
@@ -73,7 +84,7 @@ def create_update(self, form):
             data[i] = (dct5.get(str(rw), str(rw)))
         i += 1
 
-    data.pop(0)
+    if self.bd != 6: data.pop(0)
 
     check = (self.win.register(self.date_is_valid), "%P")
     check2 = (self.win.register(self.bool_is_valid), "%P")
@@ -96,27 +107,92 @@ def create_update(self, form):
     btn2 = Button(text='Удалить', command=self.accept_delete)
     self.tableim2.append(self.canvas.create_window(self.width - 10, yd, window=btn2, anchor='ne'))
     yd += ys * 2.5
+    aind=0
 
-    if self.bd != 6: form.pop(0)
+    if self.bd != 6: form.pop(0);aind=1
 
     for i in range(len(form)):
         tr = form[i]
         self.tableim2.append(self.canvas.create_text(xd, yd, text=tr, anchor='nw'))
-        if self.dtypes[self.bd][i] == 'dt':
-            self.obj.append(Entry(validate="key", validatecommand=check))
+        if i==vst1-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options1.copy()
+        elif i==vst2-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options2.copy()
+        elif i==vst3-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options3.copy()
+        elif i==vst4-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options4.copy()
+        elif i==vst5-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options5.copy()
+        elif self.dtypes[self.bd][i] == 'dt':
+            self.obj.append(['e',Entry(validate="key", validatecommand=check)])
         elif self.dtypes[self.bd][i] == 'b':
-            self.obj.append(Entry(validate="key", validatecommand=check2))
+            self.obj.append(['e',Entry(validate="key", validatecommand=check2)])
         else:
-            self.obj.append(Entry())
-        self.obj[-1].insert(0, str(data[i]))
-
-        self.tableim2.append(self.canvas.create_window(self.width - 10, yd, window=self.obj[-1], anchor='ne'))
+            self.obj.append(['e',Entry()])
+        if self.obj[-1][0]=='e':
+            self.obj[-1][1].insert(0, str(data[i]))
+            self.tableim2.append(self.canvas.create_window(self.width - 10, yd, window=self.obj[-1][1], anchor='ne'))
+        else:
+            self.obj[-1][1].set(data[i])
+            self.tableim2.append(self.canvas.create_window(self.width-10,yd,window=OptionMenu(self.win,self.obj[-1][1],*opt),anchor='ne'))
         yd += ys * 1.5
 
     self.set_scroll(self.width, yd + 100)
 
 
 def create_form(self, form):
+    
+    
+    tb = [form.copy()]
+    vst1 = -1
+    vst2 = -1
+    vst3 = -1
+    vst4 = -1
+    vst5 = -1
+    
+    options1=['None']
+    options2=['None']
+    options3=['None']
+    options4=['None']
+    options5=['None']
+
+    if 'Категория' in tb[0]:
+        vst1 = tb[0].index('Категория')
+        query = 'SELECT * FROM ' + self.tbs[0]
+        data2 = self.my_sql(query, True)
+        for d in data2:
+            options1.append(d[1])
+    if 'Оборудование' in tb[0]:
+        vst2 = tb[0].index('Оборудование')
+        query = 'SELECT * FROM ' + self.tbs[3]
+        data2 = self.my_sql(query, True)
+        for d in data2:
+            options2.append(d[1])
+    if 'Руководитель' in tb[0]:
+        vst3 = tb[0].index('Руководитель')
+        query = 'SELECT * FROM ' + self.tbs[2]
+        data2 = self.my_sql(query, True)
+        for d in data2:
+            options3.append(d[2])
+    if 'Проект' in tb[0]:
+        vst4 = tb[0].index('Проект')
+        query = 'SELECT * FROM ' + self.tbs[4]
+        data2 = self.my_sql(query, True)
+        for d in data2:
+            options4.append(str(d[0]))
+    if 'Заказчик' in tb[0]:
+        vst5 = tb[0].index('Заказчик')
+        query = 'SELECT * FROM ' + self.tbs[5]
+        data2 = self.my_sql(query, True)
+        for d in data2:
+            options5.append(d[1])
+    
     check = (self.win.register(self.date_is_valid), "%P")
     check2 = (self.win.register(self.bool_is_valid), "%P")
 
@@ -136,19 +212,39 @@ def create_form(self, form):
     self.tableim2.append(self.canvas.create_window(self.width - 10, yd, window=btn, anchor='ne'))
     yd += ys * 2.5
 
-    if self.bd != 6: form.pop(0)
+    aind=0
+
+    if self.bd != 6: form.pop(0);aind=1
 
     for i in range(len(form)):
         tr = form[i]
         self.tableim2.append(self.canvas.create_text(xd, yd, text=tr, anchor='nw'))
-        if self.dtypes[self.bd][i] == 'dt':
-            self.obj.append(Entry(validate="key", validatecommand=check))
+        if i==vst1-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options1.copy()
+        elif i==vst2-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options2.copy()
+        elif i==vst3-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options3.copy()
+        elif i==vst4-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options4.copy()
+        elif i==vst5-aind:
+            self.obj.append(['s',StringVar()])
+            opt=options5.copy()
+        elif self.dtypes[self.bd][i] == 'dt':
+            self.obj.append(['e',Entry(validate="key", validatecommand=check)])
         elif self.dtypes[self.bd][i] == 'b':
-            self.obj.append(Entry(validate="key", validatecommand=check2))
+            self.obj.append(['e',Entry(validate="key", validatecommand=check2)])
         else:
-            self.obj.append(Entry())
+            self.obj.append(['e',Entry()])
 
-        self.tableim2.append(self.canvas.create_window(self.width - 10, yd, window=self.obj[-1], anchor='ne'))
+        if self.obj[-1][0]=='e':
+            self.tableim2.append(self.canvas.create_window(self.width - 10, yd, window=self.obj[-1][1], anchor='ne'))
+        else:
+            self.tableim2.append(self.canvas.create_window(self.width-10,yd,window=OptionMenu(self.win,self.obj[-1][1],*opt),anchor='ne'))
         yd += ys * 1.5
     self.set_scroll(self.width, yd + 100)
 
@@ -248,6 +344,8 @@ def draw_table(self, x, y, table):
     #     ys=40
 
     trs = []
+    bin=0
+    if self.bd!=6: bin=1
 
     if table != []:
         for a in range(len(table[0])):
@@ -256,14 +354,24 @@ def draw_table(self, x, y, table):
         for i in range(len(tr)):
             trs[i] = max(trs[i], (len(tr[i]) + 2) * xs)
     xd = x
-    yd = y + 50
+    yd = y
     mxd = self.width
-    y1 = yd
+    
+    
+    if self.route=='view':
+        y1d=yd
+        
+        yd += ys * 2.5
+    y3d=yd+25
+    yd+=50
+    y1=yd
+    y2d=(y1-y)//2
+    
     for tr in table:
 
         mxd = max(mxd, xd)
         xd = x
-        for i in range(len(tr)):
+        for i in range(bin,len(tr)):
             self.tableim2.append(self.canvas.create_rectangle(xd, yd, xd + trs[i], yd + ys))
             self.tableim2.append(self.canvas.create_text(xd + trs[i] / 2, yd + ys / 2, text=tr[i]))
 
@@ -277,7 +385,14 @@ def draw_table(self, x, y, table):
         title = self.qhead[self.que]
     else:
         title = ''
-    self.tableim2.append(self.canvas.create_text(mxd / 2, y + 25, text=title))
+        if table[0][0]=='Код договора': title='Договора в рамках проекта'
+        elif table[0][0]=='Код сотрудника': title='Сотрудники, работающие в рамках проекта'
+        elif table[0][0]=='Код оборудования': title='Оборудование, задействанное в проекте'
+        elif table[0][0]=='Код проекта': title='Проект - '+table[1][-1]
+    self.tableim2.append(self.canvas.create_text(mxd / 2, y3d, text=title))
+    if self.route=='view':
+        btn = Button(text='Создать', command=self.button_create2)
+        self.tableim2.append(self.canvas.create_window(mxd- 20, y2d, window=btn, anchor='ne'))
     self.set_scroll(mxd + 40, yd + 100)
     return mxd, yd
 
@@ -414,6 +529,7 @@ def main_menu(self):
 
 
 def create_project(self):
+    money=0
     xs = self.xs
     ys = self.ys
 
@@ -456,6 +572,7 @@ def create_project(self):
         arr = []
         for i in range(len(rw)):
             arr.append(str(rw[i]))
+            if i==3: money+=int(rw[i])
         tb.append(arr)
     tbs.append(tb)
 
@@ -480,6 +597,8 @@ def create_project(self):
             arr.append(str(rw[i]))
         tb.append(arr)
     tbs.append(tb)
+    
+    
 
     for tb in tbs:
         vst1 = -1
@@ -538,10 +657,29 @@ def create_project(self):
                 elif i == vst5:
                     rw[i] = (dct5.get(str(rw[i]), str(rw[i])))
     mxd = self.width
+    y2d=[]
+    arr=[
+    [ 'Материалы проекта', 'Оборудование, используемое в проекте', 'Руководитель проекта', 'Категория'],
+    []
+    ]
+    yd+=ys*0.5
+    y2d.append(yd)
+    yd+=ys*1.5
+    gtitle='Проект - '+tbs[0][1][-1]
+    for i in range(4):
+        y2d.append(yd)
+        yd+=ys
+        arr[1].append(tbs[0][1][i+1])
+    tbs.pop(0)
     for tb in tbs:
         x1, yd = self.draw_table(self, 10, yd + 40, tb)
         mxd = max(mxd, x1)
     self.generate = tbs
+    self.generate2=[
+    'Проект - '+str(tbs[0][1][-1]),
+    'В рамках проекта заработано: '+str(money)
+    ]
+    
 
     btn = Button(text='Назад', command=self.accept_back)
     self.tableim2.append(self.canvas.create_window(mxd - 30, y1d[0], window=btn, anchor='ne'))
@@ -551,5 +689,10 @@ def create_project(self):
     self.tableim2.append(self.canvas.create_window(mxd - 30, y1d[2], window=btn, anchor='ne'))
     btn = Button(text='Создать отчет', command=self.accept_generate)
     self.tableim2.append(self.canvas.create_window(mxd - 30, y1d[3], window=btn, anchor='ne'))
+    
+    self.tableim2.append(self.canvas.create_text(mxd//2,y2d[0],text=gtitle))
+    for i in range(4):
+        txt=arr[0][i]+': '+arr[1][i]
+        self.tableim2.append(self.canvas.create_text(15,y2d[i+1],text=txt,anchor='nw'))
 
     self.set_scroll(mxd, yd + 100)
