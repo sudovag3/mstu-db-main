@@ -40,10 +40,10 @@ class Programm:
         self.xs=7 # ширина символа
         self.ys=20 # высота символа
         
-       # self.xs=20
-     #   self.ys=50
+     #   self.xs=20
+       # self.ys=50
         
-        self.canvas=Canvas(self.win,width=self.width,height=self.height,bg='black')
+        self.canvas=Canvas(self.win,width=self.width,height=self.height,bg='silver')
         self.canvas.pack(side=LEFT,expand=True,fill=BOTH)
         self.win.title('Title')
 
@@ -129,7 +129,10 @@ class Programm:
         #
         arr=[]
         for i in range(len(self.obj)):
-            a=self.obj[i].get()
+            if self.obj[i][0]=='e':
+                a=self.obj[i][1].get()
+            else:
+                a=self.obj[i][1].get()
             #
             if i==vst1:
                 arr.append(dct1.get(a,a))
@@ -175,15 +178,21 @@ class Programm:
     def button_update(self):
         self.route_change('update')
         
+    def button_create2(self):
+        self.route_change('create')
+        
     def accept_generate(self):
-        name='Отчеты/Отчет_'+str(time.time()//(60*60)%10000)+'_'+str(self.generate[0][1][0])+'.docx'
+        name='Отчет_'+str(time.time()//(60*60)%10000)+'_'+str(self.generate[0][1][0])+'.docx'
         titles=['Проект','Договора','Сотрудники','Оборудование']
         document = Document()
+        document.add_paragraph(self.generate2[0])
+        document.add_paragraph(self.generate2[1])
         for i in range(len(self.generate)):
             tb=self.generate[i]
             title=titles[i]
             document.add_heading(title)
             table = document.add_table(rows=len(tb), cols=len(tb[0]))
+            table.style = 'Table Grid'
             for i in range(len(tb)):
                 row = table.rows[i]
                 for j in range(len(tb[i])):
@@ -242,8 +251,11 @@ class Programm:
         #
         arr=[]
         for i in range(len(self.obj)):
-            a=self.obj[i].get()
-            self.obj[i].delete(0,END)
+            if self.obj[i][0]=='e':
+                a=self.obj[i][1].get()
+                self.obj[i][1].delete(0,END)
+            else:
+                a=self.obj[i][1].get()
             #
             if i==vst1:
                 arr.append(dct1.get(a,a))
@@ -369,6 +381,7 @@ class Programm:
     equipment_id int COMMENT 'Код оборудования',
     head_employee_id int not null COMMENT 'Код руководителя',
     category_id int not null COMMENT 'Код категории',
+    project_name varchar(100) DEFAULT 'None' COMMENT 'Название проекта',
     
     FOREIGN KEY (category_id) REFERENCES Category(category_id),
     FOREIGN KEY (equipment_id) REFERENCES Equipment(equipment_id),
@@ -583,6 +596,7 @@ class Programm:
 # изменение области прокрутки
     def set_scroll(self,x,y):
         self.canvas.config(scrollregion=(0,0,x,y))
+        self.win.geometry(str(int(x))+"x"+str(int(y)))
 
     def mainloop(self):
         while self.end==0:
@@ -609,6 +623,10 @@ user=os.environ.get('DB_USER')
 password=os.environ.get('DB_PASSWORD') or ''
 port=os.environ.get('DB_PORT')
 
+#host="localhost"
+#user='root'
+#password=''
+
 programm=Programm(host,user,password, port)
 programm.create_menu()
 programm.create_scroll()
@@ -619,5 +637,7 @@ programm.route_change('')
 programm.start_sql()
 programm.create_db('rgr_db')
 programm.create_tables()
+
+#programm.my_sql("use rgr_db; ALTER TABLE Project  ADD COLUMN project_name varchar(100) DEFAULT 'None' COMMENT 'Название проекта'  ",True)
 
 programm.mainloop()
